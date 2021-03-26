@@ -9,7 +9,9 @@ jack_port_t *output_port = NULL;
 jack_client_t *client = NULL;
 
 int process()
-{}
+{
+  return 0;
+}
 
 void cleanup()
 {
@@ -21,7 +23,8 @@ void cleanup()
 
 void jack_setup()
 {
-  if((client = jack_client_open("midi-velocity-scale", JackNullOption, 0)) == 0){
+  client = jack_client_open("midi-velocity-scale", JackNullOption, 0);
+  if(client == 0){
     fprintf(stderr, "Failed to start jack client\n");
     exit(1);
   }
