@@ -21,6 +21,11 @@ int process(jack_nframes_t nframes, void* arg)
   for(jack_nframes_t i=0; i<midi_event_n; i++){
     jack_midi_event_get(&ev, midi_in_buf, i);
 
+    //0x90 is Midi Note-On
+    if((ev.buffer[0] & 0xf0) == 0x90){
+      printf("%i %i %i\n",ev.buffer[0], ev.buffer[1], ev.buffer[2]);
+    }
+
     jack_midi_event_write(midi_out_buf, ev.time, ev.buffer, ev.size);
   }
 
