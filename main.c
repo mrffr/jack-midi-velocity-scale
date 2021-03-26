@@ -4,9 +4,20 @@
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
+jack_port_t *input_port = NULL;
+jack_port_t *output_port = NULL;
+jack_client_t *client = NULL;
+
+void process()
+{}
 
 void cleanup()
-{}
+{
+  jack_deactivate(client);
+  jack_port_unregister(client, input_port);
+  jack_port_unregister(client, output_port);
+  jack_client_close(client);
+}
 
 void jack_setup()
 {}
