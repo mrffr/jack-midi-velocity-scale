@@ -8,8 +8,22 @@ jack_port_t *input_port = NULL;
 jack_port_t *output_port = NULL;
 jack_client_t *client = NULL;
 
-int process()
+int process(jack_nframes_t nframes, void* arg)
 {
+  void * midi_in_buf = jack_port_get_buffer(input_port, nframes);
+  void * midi_out_buf = jack_port_get_buffer(output_port, nframes);
+
+  jack_midi_clear_buffer(midi_out_buf);
+
+  jack_nframes_t midi_event_n = jack_midi_get_event_count(midi_in_buf);
+  jack_midi_event_t ev;
+
+  for(jack_nframes_t i=0; i<midi_event_n; i++){
+    jack_midi_event_get(&ev, midi_in_buf, i);
+
+    jack_midi_event_write(midi_out_buf, ev.time, ev.buffer, ev.size);
+  }
+
   return 0;
 }
 
