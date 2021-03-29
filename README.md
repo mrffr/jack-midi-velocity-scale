@@ -1,5 +1,5 @@
 # jack-midi-velocity-scale
-Basic utility example for scaling or clamping velocity of midi input events.
+Basic utility for scaling or clamping velocity of midi input events.
 
 I wrote this because my midi keyboard is too quiet and I just needed a simple way to raise the floor of velocity values.
 
