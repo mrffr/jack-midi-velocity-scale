@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h> //usleep
+#include <signal.h>
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
@@ -60,8 +61,6 @@ void jack_setup()
     jack_client_close(client);
   }
 
-  atexit(cleanup);
-
   jack_set_process_callback(client, &process, 0);
 
   if(jack_activate(client)){
@@ -75,6 +74,22 @@ int main(int argc, char *argv[])
 {
   jack_setup();
 
+  //cleanup program
+  atexit(cleanup);
+
+  //handle sig_int
+  struct sigaction new_action, old_action;
+  new_action.sa_handler = cleanup;
+  sigemptyset(&new_action.sa_mask);
+  sigaddset(&new_action.sa_mask, SIGINT);
+  new_action.sa_flags = 0;
+  sigaction(SIGINT, NULL, &old_action);
+
+  if(old_action.sa_handler != SIG_IGN){
+    sigaction(SIGINT, &new_action, NULL);
+  }
+
+  //main loop
   while(1){
     sleep(1);
   }
