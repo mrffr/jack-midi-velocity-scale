@@ -35,10 +35,12 @@ int process(jack_nframes_t nframes, void* arg)
 
 void cleanup()
 {
+  fprintf(stderr, "closing program\n");
   jack_deactivate(client);
   jack_port_unregister(client, input_port);
   jack_port_unregister(client, output_port);
   jack_client_close(client);
+  exit(0);
 }
 
 void jack_setup()
@@ -75,19 +77,20 @@ int main(int argc, char *argv[])
   jack_setup();
 
   //cleanup program
-  atexit(cleanup);
+  //atexit(cleanup);
 
   //handle sig_int
-  struct sigaction new_action, old_action;
+  struct sigaction new_action;
   new_action.sa_handler = cleanup;
   sigemptyset(&new_action.sa_mask);
   sigaddset(&new_action.sa_mask, SIGINT);
+  sigaddset(&new_action.sa_mask, SIGTERM);
   new_action.sa_flags = 0;
-  sigaction(SIGINT, NULL, &old_action);
 
-  if(old_action.sa_handler != SIG_IGN){
-    sigaction(SIGINT, &new_action, NULL);
-  }
+  sigaction(SIGINT, &new_action, NULL);
+  sigaction(SIGTERM, &new_action, NULL);
+
+  fprintf(stderr, "Starting\n");
 
   //main loop
   while(1){
