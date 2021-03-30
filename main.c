@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h> //usleep
 #include <signal.h>
 #include <jack/jack.h>
@@ -8,6 +7,9 @@
 jack_port_t *input_port = NULL;
 jack_port_t *output_port = NULL;
 jack_client_t *client = NULL;
+
+int8_t bot = 0x00;
+int8_t top = 0xFF;
 
 int process(jack_nframes_t nframes, void* arg)
 {
@@ -25,6 +27,11 @@ int process(jack_nframes_t nframes, void* arg)
     //0x90 is Midi Note-On
     if((ev.buffer[0] & 0xf0) == 0x90){
       printf("%i %i %i\n",ev.buffer[0], ev.buffer[1], ev.buffer[2]);
+
+      //scale
+      int8_t new_val = ((top-bot) * (ev.buffer[2]/255.0f)) + bot;
+      printf("%i\n",new_val);
+      ev.buffer[2] = new_val;
     }
 
     jack_midi_event_write(midi_out_buf, ev.time, ev.buffer, ev.size);
@@ -35,7 +42,7 @@ int process(jack_nframes_t nframes, void* arg)
 
 void cleanup()
 {
-  fprintf(stderr, "closing program\n");
+  fprintf(stderr, "Closing program\n");
   jack_deactivate(client);
   jack_port_unregister(client, input_port);
   jack_port_unregister(client, output_port);
@@ -76,10 +83,7 @@ int main(int argc, char *argv[])
 {
   jack_setup();
 
-  //cleanup program
-  //atexit(cleanup);
-
-  //handle sig_int
+  //cleanup connections after sigint and sigterm
   struct sigaction new_action;
   new_action.sa_handler = cleanup;
   sigemptyset(&new_action.sa_mask);
