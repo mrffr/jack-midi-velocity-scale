@@ -8,8 +8,10 @@ jack_port_t *input_port = NULL;
 jack_port_t *output_port = NULL;
 jack_client_t *client = NULL;
 
-int8_t bot = 0x00;
-int8_t top = 0xFF;
+//set velocity limits
+//127 is the max value for midi velocity
+int min_vel = 20;
+int max_vel = 127;
 
 int process(jack_nframes_t nframes, void* arg)
 {
@@ -26,12 +28,17 @@ int process(jack_nframes_t nframes, void* arg)
 
     //0x90 is Midi Note-On
     if((ev.buffer[0] & 0xf0) == 0x90){
-      printf("%i %i %i\n",ev.buffer[0], ev.buffer[1], ev.buffer[2]);
 
-      //scale
-      int8_t new_val = ((top-bot) * (ev.buffer[2]/255.0f)) + bot;
-      printf("%i\n",new_val);
+      //linear scaling for now
+      int old_val = ev.buffer[2];
+      float v = ev.buffer[2]/127.0f;
+      int new_val = min_vel + (max_vel - min_vel) * v;
+      if(new_val > 127) new_val = 127;
       ev.buffer[2] = new_val;
+
+      /*printf("%i %i old:%i new:%i\n",ev.buffer[0], ev.buffer[1],
+	     old_val, ev.buffer[2]);
+      */
     }
 
     jack_midi_event_write(midi_out_buf, ev.time, ev.buffer, ev.size);
