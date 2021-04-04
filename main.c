@@ -88,6 +88,9 @@ void jack_setup()
 
 int main(int argc, char *argv[])
 {
+  //TODO handle command line args for min/max value
+
+
   jack_setup();
 
   //cleanup connections after sigint and sigterm
