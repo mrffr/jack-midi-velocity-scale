@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 {
   //TODO handle command line args for min/max value
   int opt;
-  while((opt = getopt(argc, argv, "l:h")) != -1){
+  while((opt = getopt(argc, argv, "l:h:")) != -1){
     switch(opt){
       case 'l': 
         {
@@ -121,7 +121,6 @@ int main(int argc, char *argv[])
     }
   }
 
-
   jack_setup();
 
   //cleanup connections after sigint and sigterm
@@ -136,6 +135,7 @@ int main(int argc, char *argv[])
   sigaction(SIGTERM, &new_action, NULL);
 
   fprintf(stderr, "Starting\n");
+  fprintf(stderr, "Min/Max midi velocity: %i %i\n", min_vel, max_vel);
 
   //main loop
   while(1){
