@@ -86,9 +86,40 @@ void jack_setup()
   }
 }
 
+void usage(char *exename){
+  fprintf(stderr, "usage: %s [-l] [-h]\n", exename);
+  fprintf(stderr, "\t-l\t Minimum midi value.\n");
+  fprintf(stderr, "\t-h\t Maximum midi value.\n");
+  exit(EXIT_FAILURE);
+}
+
 int main(int argc, char *argv[])
 {
   //TODO handle command line args for min/max value
+  int opt;
+  while((opt = getopt(argc, argv, "l:h")) != -1){
+    switch(opt){
+      case 'l': 
+        {
+          int min = atoi(optarg);
+          if (min >= 0 && min <= 127){
+            min_vel = min; 
+          }
+        }
+        break;
+      case 'h':
+        {
+          int max = atoi(optarg);
+          if(max >= 0 && max <= 127){
+            max_vel = max;
+          }
+        }
+        break;
+      default:
+        usage(argv[0]);
+        break;
+    }
+  }
 
 
   jack_setup();
